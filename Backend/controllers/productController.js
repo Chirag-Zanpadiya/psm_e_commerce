@@ -234,4 +234,46 @@ const blacklistProduct = async (req, res) => {
   }
 };
 
-module.exports = { createProduct, updateProduct, deleteProduct, getProducts };
+const removeFromBlacklist = async (req, res) => {
+  if (req.role !== ROLES.admin) {
+    return res.status(401).json({ success: false, message: "Access denied" });
+  }
+
+  const { id } = req.params;
+
+  try {
+    const product = await Product.findByIdAndUpdate(
+      id,
+      {
+        blacklisted: false,
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product Not Found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `The Product ${product.name} has been removed from blacklisted`,
+      data: product,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = {
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  getProducts,
+  getProductByName,
+  blacklistProduct,
+  removeFromBlacklist,
+};
