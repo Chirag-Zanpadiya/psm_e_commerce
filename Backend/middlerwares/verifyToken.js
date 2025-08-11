@@ -16,9 +16,9 @@ const verifyToken = (req, res, next) => {
   try {
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
       if (err) {
-        return res.status(400).json({
+        return res.status(401).json({
           success: false,
-          message: "Invalid Toekn",
+          message: "Invalid Token",
         });
       }
 

@@ -146,7 +146,7 @@ const adminLogin = async (req, res) => {
       success: true,
       message: "Admin Login Successfully",
       token,
-      admin: {
+      user: {
         id: admin._id,
         username: admin.username,
         role: admin.role,

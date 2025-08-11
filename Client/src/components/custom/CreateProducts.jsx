@@ -18,6 +18,9 @@ import {
 import { Button } from "../ui/button";
 import { Loader2, Upload, X } from "lucide-react";
 import { Textarea } from "../ui/textarea";
+import { toast } from "sonner";
+import useErrorLogout from "../../hooks/use-error-logout";
+import axios from "axios";
 
 const CreateProducts = () => {
   const [currentColor, setCurrentColor] = useState("#000000");
@@ -25,6 +28,8 @@ const CreateProducts = () => {
   const [images, setImages] = useState([]);
   const fileInputRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const { handleErrorLogout } = useErrorLogout();
 
   const addColor = () => {
     if (!colors.includes(currentColor)) {
@@ -37,7 +42,128 @@ const CreateProducts = () => {
   const removeImage = (indexToRemove) => {
     setImages(images.filter((_, index) => index !== indexToRemove));
   };
-  const handleImageUpload = (e) => {};
+  const handleImageUpload = (e) => {
+    const files = e.target.files;
+
+    if (files) {
+      const newImages = Array.from(files).map((file) => ({
+        preview: URL.createObjectURL(file),
+        file,
+      }));
+
+      setImages((prevImages) => [...prevImages, ...newImages].slice(0, 4));
+    }
+  };
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+
+    const name = e.target.name.value;
+    const description = e.target.description.value;
+    const price = e.target.price.value;
+    const stock = e.target.stock.value;
+    const category = e.target.category.value;
+
+    if (
+      !name ||
+      !description ||
+      !price ||
+      !stock ||
+      !category ||
+      colors.length === 0 ||
+      images.length === 0
+    ) {
+      return toast.warning(
+        <span className="text-red-600 font-semibold">
+          Please Provide All Details of Products
+        </span>,
+        {
+          duration: 4000, // 4 seconds
+          position: "top-center",
+        }
+      );
+    }
+
+    if (
+      name.trim() === "" ||
+      description.trim() === "" ||
+      price <= 0 ||
+      stock <= 0 ||
+      category.trim() === ""
+    ) {
+      toast.warning(
+        <span className="text-red-600 font-semibold">
+          Product Name And Description Cannot Be Null
+        </span>,
+        {
+          duration: 4000, // 4 seconds
+          position: "top-center",
+        }
+      );
+    }
+
+    if (images.length < 4) {
+      toast.warning(
+        <span className="text-red-600 font-semibold">
+          At Least 4 Images Required
+        </span>,
+        {
+          duration: 4000, // 4 seconds
+          position: "top-center",
+        }
+      );
+    }
+
+    setIsLoading(true);
+
+    const formData = new FormData();
+
+    formData.append("name", name);
+    formData.append("description", description);
+    formData.append("price", price);
+    formData.append("stock", stock);
+    formData.append("category", category);
+    // formData.append("colors", JSON.stringify(colors));
+
+    colors.forEach((color) => formData.append("colors", color));
+    images.forEach((image) => formData.append("images", image.file));
+
+    try {
+      const res = await axios.post(
+        import.meta.env.VITE_API_URL + "/create-product",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      toast.success(
+        <span className="text-green-600 font-semibold">Success</span>,
+        {
+          duration: 4000, // 4 seconds
+          position: "top-center",
+          description: res.data.message,
+        }
+      );
+    } catch (error) {
+      return handleErrorLogout(
+        error,
+        "Error Occured While Uploading Product Details Please Try After Again"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center absolute inset-0">
+        <Loader2 className="h-12 w-12 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full  -z-10">
@@ -49,7 +175,7 @@ const CreateProducts = () => {
         </CardDescription>
       </CardHeader>
 
-      <form className="mt-10">
+      <form className="mt-10" onSubmit={onSubmit}>
         <div className="flex flex-col  lg:flex-row lg:w-[70vw]">
           <CardContent className="w-full space-y-2">
             <div className="space-y-2">
@@ -124,7 +250,7 @@ const CreateProducts = () => {
                   onChange={(e) => setCurrentColor(e.target.value)}
                   className="w-12 h-12 p-1 rounded-md"
                 ></Input>
-                <Button variant="outline" onClick={addColor}>
+                <Button type="button" variant="outline" onClick={addColor}>
                   Add Color
                 </Button>
               </div>
@@ -159,34 +285,37 @@ const CreateProducts = () => {
                 <Label htmlFor="images">Product Images</Label>
 
                 <div className="flex flex-wrap gap-4">
-                  <div className="relative">
-                    <img
-                      src="https://images.pexels.com/photos/777001/pexels-photo-777001.jpeg"
-                      alt={`Product image ${1}`}
-                      width={100}
-                      height={100}
-                      className="rounded-md object-cover"
-                    />
+                  {images.map((image, index) => (
+                    <div className="relative" key={index}>
+                      <img
+                        src={image?.preview}
+                        alt={`Product image ${index + 1}`}
+                        width={100}
+                        height={100}
+                        className="rounded-md object-cover"
+                      />
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute -top-2 -right-6 h-6 w-6 rounded-full"
+                        onClick={() => removeImage(0)}
+                      >
+                        <X className="h-4 w-4"></X>
+                        <span className="sr-only"></span>
+                      </Button>
+                    </div>
+                  ))}
+
+                  {images.length < 4 && (
                     <Button
-                      variant="destructive"
-                      size="icon"
-                      className="absolute -top-2 -right-6 h-6 w-6 rounded-full"
-                      onClick={() => removeImage(0)}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-[100px] h-[100px]"
+                      variant="outline"
                     >
-                      <X className="h-4 w-4"></X>
-                      <span className="sr-only"></span>
+                      <Upload className="h-6 w-6" />
+                      <span className="sr-only">Upload Image</span>
                     </Button>
-                  </div>
-                  {/* {images.length > 4 && ( */}
-                  <Button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-[100px] h-[100px]"
-                    variant="outline"
-                  >
-                    <Upload className="h-6 w-6" />
-                    <span className="sr-only">Upload Image</span>
-                  </Button>
-                  {/* )} */}
+                  )}
                 </div>
                 <Input
                   type="file"

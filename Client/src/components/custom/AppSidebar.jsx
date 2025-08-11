@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/sidebar";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "../ui/button";
+import { useDispatch } from "react-redux";
+import { setUserLogout } from "@/redux/slice/authSlice";
 
 // Menu items.
 // /admin/dashboard
@@ -59,6 +61,7 @@ const items = [
 
 const AppSidebar = () => {
   const { pathname } = useLocation();
+  const dispatch = useDispatch();
   return (
     <Sidebar>
       <SidebarHeader>
@@ -86,7 +89,7 @@ const AppSidebar = () => {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <Button>LogOut</Button>
+        <Button onClick={()=>dispatch(setUserLogout())}>LogOut</Button>
       </SidebarFooter>
     </Sidebar>
   );

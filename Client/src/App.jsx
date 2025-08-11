@@ -25,6 +25,9 @@ import Orders from "./components/custom/Orders";
 import Settings from "./components/custom/Settings";
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
+import MyOrders from "./pages/MyOrders";
+import { Toaster } from "@/components/ui/sonner";
+import ProtectedRoute from "./components/custom/ProtectedRoute";
 function App() {
   // const [count, setCount] = useState(0);
   const router = createBrowserRouter([
@@ -32,7 +35,9 @@ function App() {
       path: "/",
       element: (
         <>
-          <RootLayOut children={<Home />} />
+          <ProtectedRoute>
+            <RootLayOut children={<Home />} />
+          </ProtectedRoute>
         </>
       ),
     },
@@ -40,7 +45,9 @@ function App() {
       path: "/signup",
       element: (
         <>
-          <RootLayOut children={<SignUp />} />
+          <ProtectedRoute>
+            <RootLayOut children={<SignUp />} />
+          </ProtectedRoute>
         </>
       ),
     },
@@ -48,7 +55,9 @@ function App() {
       path: "/login",
       element: (
         <>
-          <RootLayOut children={<Login />} />
+          <ProtectedRoute>
+            <RootLayOut children={<Login />} />
+          </ProtectedRoute>
         </>
       ),
     },
@@ -64,7 +73,19 @@ function App() {
       path: "/checkout",
       element: (
         <>
-          <RootLayOut children={<CheckOut />} />
+          <ProtectedRoute>
+            <RootLayOut children={<CheckOut />} />
+          </ProtectedRoute>
+        </>
+      ),
+    },
+    {
+      path: "/orders",
+      element: (
+        <>
+          <ProtectedRoute>
+            <RootLayOut children={<MyOrders />} />
+          </ProtectedRoute>
         </>
       ),
     },
@@ -72,29 +93,51 @@ function App() {
       path: "/admin/login",
       element: (
         <>
-          <RootLayOut children={<AdminLogin />} />
+          <ProtectedRoute>
+            <RootLayOut children={<AdminLogin />} />
+          </ProtectedRoute>
         </>
       ),
     },
     {
       path: "/admin/dashboard",
-      element: <AdminLayOut children={<CreateProducts />} />,
+      element: (
+        <ProtectedRoute>
+          <AdminLayOut children={<CreateProducts />} />
+        </ProtectedRoute>
+      ),
     },
     {
       path: "/admin/dashboard/all-products",
-      element: <AdminLayOut children={<AllProducts />} />,
+      element: (
+        <ProtectedRoute>
+          <AdminLayOut children={<AllProducts />} />
+        </ProtectedRoute>
+      ),
     },
     {
       path: "/admin/dashboard/analytics",
-      element: <AdminLayOut children={<Analytics />} />,
+      element: (
+        <ProtectedRoute>
+          <AdminLayOut children={<Analytics />} />
+        </ProtectedRoute>
+      ),
     },
     {
       path: "/admin/dashboard/orders",
-      element: <AdminLayOut children={<Orders />} />,
+      element: (
+        <ProtectedRoute>
+          <AdminLayOut children={<Orders />} />
+        </ProtectedRoute>
+      ),
     },
     {
       path: "/admin/dashboard/settings",
-      element: <AdminLayOut children={<Settings />} />,
+      element: (
+        <ProtectedRoute>
+          <AdminLayOut children={<Settings />} />
+        </ProtectedRoute>
+      ),
     },
     {
       path: "/*",
@@ -118,6 +161,7 @@ function App() {
     <>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <Provider store={store}>
+          <Toaster />
           <RouterProvider router={router} />
         </Provider>
       </ThemeProvider>

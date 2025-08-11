@@ -15,7 +15,7 @@ const createProduct = async (req, res) => {
 
     const uploadedImages = [];
 
-    for (const file of req.files) {
+    for (const file in req.files) {
       const result = await cloudinary.uploader.upload(req.files[file].path, {
         folder: "products",
       });

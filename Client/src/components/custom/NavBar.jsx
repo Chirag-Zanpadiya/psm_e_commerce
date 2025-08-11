@@ -4,8 +4,11 @@ import { ModeToggle } from "./modeToggle";
 import CartDrawer from "./CartDrawer";
 import { User } from "lucide-react";
 import LogOutToggle from "./LogOutToggle";
+import { useSelector } from "react-redux";
 const NavBar = () => {
-  const [isAuthenticated, setisAuthenticated] = useState(true);
+  // const [isAuthenticated, setisAuthenticated] = useState(true);
+
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
   return (
     <nav className="flex justify-between items-center px-8 py-5 border-b dark:bg-zinc-900">
       {/* icons */}
@@ -14,7 +17,7 @@ const NavBar = () => {
         <CartDrawer />
 
         {isAuthenticated ? (
-          <LogOutToggle />
+          <LogOutToggle user={user} />
         ) : (
           <Link to="/login">
             <User

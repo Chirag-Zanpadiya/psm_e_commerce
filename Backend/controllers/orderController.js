@@ -167,10 +167,110 @@ const getMetrics = async (req, res) => {
       createdAt: { $gte: start, $lte: end },
     });
 
-    const lastMonthUser = await User.find({
-      createdAt: { $gte: lastMonth, $lt: start },
+    const lastMonthUsers = await User.find({
+      createdAt: { $gte: lastMonth, $lte: start },
+    });
+
+    const usersGrowth = lastMonthUsers.length
+      ? ((thisMonthUsers.length - lastMonthUsers.length) /
+          lastMonthUsers.length) *
+        100
+      : 0;
+
+    // cal user purchased in last hour
+    const lastHour = new Date(new Date().setHours(new Date().getHours() - 1));
+
+    const lastHourOrders = await Order.find({
+      createdAt: { $gte: lastHour, $lte: new Date() },
+    });
+
+    const previousDayOrders = await Order.find({
+      createdAt: {
+        $gte: new Date(new Date().setDate(new Date().getDate() - 1)),
+      },
+    });
+
+    const lastHourGrowth = previousDayOrders.length
+      ? (lastHourOrders.length / previousDayOrders.length) * 100
+      : 0;
+
+    // Recent sales
+    const recentOrders = await Order.find()
+      .populate({
+        path: "userId",
+        select: "name email",
+      })
+      .select("amount")
+      .sort({ createdAt: -1 })
+      .limit(9);
+
+    // products delivered in last 6 months with their category and count according to month
+    const sixMonthsAgo = new Date(
+      new Date().setMonth(new Date().getMonth() - 6)
+    );
+
+    const sixMonthsOrders = await Order.find({
+      createdAt: { $gte: sixMonthsAgo },
+    }).populate({
+      path: "products.id",
+      select: "category",
+    });
+
+    // get them month wise for eg ; {jan : {keyboard : 1, mouse :1, headset 2}}
+    const monthWise = sixMonthsOrders.reduce((acc, order) => {
+      const month = new Date(order.createdAt).toLocaleString("default", {
+        month: "short",
+      });
+
+      order.products.forEach((product) => {
+        if (!acc[month]) {
+          acc[month] = {};
+        }
+
+        if (!acc[month][product.id.category]) {
+          acc[month][product.id.category] = 1;
+        } else {
+          acc[month][product.id.category]++;
+        }
+      });
+
+      return acc;
+    }, {});
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        totalSales: {
+          count: totalSales,
+          growth: salesGrowth,
+        },
+        users: {
+          count: thisMonthUsers.length,
+          growth: usersGrowth,
+        },
+        sales: {
+          count: totalThisMonth,
+          growth: salesGrowth,
+        },
+        activeNow: {
+          count: lastHourOrders.length,
+          growth: lastHourGrowth,
+        },
+        recentSales: {
+          count: totalThisMonth,
+          users: recentOrders,
+        },
+        sixMonthsBarChartData: monthWise,
+      },
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
+};
+
+module.exports = {
+  getOrdersByUserId,
+  getAllOrders,
+  updateOrderStatus,
+  getMetrics,
 };
