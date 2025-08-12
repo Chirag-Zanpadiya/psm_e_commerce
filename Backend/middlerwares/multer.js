@@ -5,8 +5,8 @@ const storage = multer.diskStorage({
     cb(null, "./public/temp"); // फाइल "uploads" फोल्डर में सेव होगी
   },
   filename: function (req, file, cb) {
-    console.log(`middlerwares :: multer.middlerwares :: file :: `);
-    console.log(file);
+    // console.log(`middlerwares :: multer.middlerwares :: file :: `);
+    // console.log(file);
     
 
     cb(null, file.originalname);

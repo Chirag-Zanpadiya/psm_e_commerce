@@ -150,7 +150,7 @@ const getProducts = async (req, res) => {
     let newProductsArray = [];
     products.forEach((product) => {
       const productObj = product.toObject();
-      productObj.image = productObj.images[0].url;
+      productObj.image = productObj.images[0];
       delete productObj.images;
       newProductsArray.push(productObj);
     });
