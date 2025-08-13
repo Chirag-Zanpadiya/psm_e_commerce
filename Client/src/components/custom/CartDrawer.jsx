@@ -9,15 +9,20 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Button } from "../ui/button";
 import { ShoppingCart } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { useSelector } from "react-redux";
 import CartProduct from "./CartProduct";
+import LinkButton from "./LinkButton";
 const CartDrawer = () => {
   const { cartItems, totalQuantity, totalPrice } = useSelector(
     (state) => state.cart
   );
+
+  console.log("totalQuantity:", totalQuantity);
+  console.log("totalPrice:", totalPrice);
+  console.log("cartItems:", cartItems);
+
   return (
     <Drawer>
       <DrawerTrigger className="relative">
@@ -34,21 +39,22 @@ const CartDrawer = () => {
         <DrawerHeader>
           <DrawerTitle>Are you absolutely sure?</DrawerTitle>
           <DrawerDescription>
-            Total Items : {totalQuantity} , Total Price : ₹{totalPrice}{" "}
+            Total Items : {totalQuantity}, Total Price : ₹{totalPrice}
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="flex flex-col sm:flex-row justify-start gap-3 h-[70vh] overflow-y-scroll sm:overflow-y-hidden sm:h-auto mx-3">
+        <div className="flex flex-col sm:flex-row justify-start gap-3 h-[70vh]overflow-y-scroll sm:overflow-y-hidden sm:h-auto mx-3">
           {cartItems.length === 0 ? (
-            <h2 className="text-primary test-sm">
+            <h2 className="text-primary text-sm">
               Nothing To Show, Please add some products...
             </h2>
           ) : (
             cartItems.map((item) => <CartProduct key={item._id} {...item} />)
           )}
         </div>
+
         <DrawerFooter>
-          <Button>CheckOut</Button>
+          <LinkButton to="/checkout" text="Checkout" />
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

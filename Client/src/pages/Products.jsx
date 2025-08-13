@@ -46,18 +46,16 @@ const Products = () => {
 
   const { generatePayment, verifyPayment } = useRazorpay();
 
-
   const [productQuantity, setProductQuantity] = useState(1);
   const [pincode, setPincode] = useState("");
   const [availabilityMessage, setAvailabilityMessage] = useState("");
   const [purchaseProduct, setPurchaseProduct] = useState(false);
   const [address, setAddress] = useState("");
-  const { handleErrorLogout } = useErrorLogout();
+  // const { handleErrorLogout } = useErrorLogout();
   const [product, setProduct] = useState({});
   const [productColor, setProductColor] = useState("");
 
   const [selectedImage, setSelectedImage] = useState(0);
-
 
   useEffect(() => {
     const fetchProductByName = async () => {
@@ -96,9 +94,15 @@ const Products = () => {
     }
 
     if (productColor == "") {
-      toast({
-        title: "Please select a color",
-      });
+      toast.warning(
+        <span className="text-red-600 font-semibold">
+          Please Select Colors
+        </span>,
+        {
+          duration: 4000, // 4 seconds
+          position: "top-center",
+        }
+      );
       return;
     }
 
@@ -116,9 +120,16 @@ const Products = () => {
     );
 
     setProductQuantity(1);
-    toast({
-      title: "Product added to cart",
-    });
+
+    toast.success(
+      <span className="text-green-600 font-semibold">
+        Product Added to Cart Successfully
+      </span>,
+      {
+        duration: 4000, // 4 seconds
+        position: "top-center",
+      }
+    );
   };
 
   const handleBuyNow = async () => {
@@ -128,22 +139,45 @@ const Products = () => {
     }
 
     if (productQuantity > product.stock) {
-      toast({ title: "Product out of stock" });
+      toast.warning(
+        <span className="text-red-600 font-semibold">
+          Product out of stock
+        </span>,
+        {
+          duration: 4000, // 4 seconds
+          position: "top-center",
+        }
+      );
       return;
     }
 
     if (product.blacklisted) {
-      toast({ title: "Product isn't available for purchase" });
+      toast.warning(
+        <span className="text-red-600 font-semibold">
+          Product isn't available for purchase
+        </span>,
+        {
+          duration: 4000, // 4 seconds
+          position: "top-center",
+        }
+      );
       return;
     }
 
     if (productColor == "") {
-      toast({ title: "Please select a color" });
+      toast.warning(
+        <span className="text-red-600 font-semibold">
+          Please select a color
+        </span>,
+        {
+          duration: 4000, // 4 seconds
+          position: "top-center",
+        }
+      );
       return;
     }
 
     console.log(product?.price);
-    
 
     const order = await generatePayment(product?.price * productQuantity);
     await verifyPayment(
@@ -152,7 +186,7 @@ const Products = () => {
       address
     );
 
-    setPurchaseProduct(false)
+    setPurchaseProduct(false);
   };
 
   return (
@@ -289,7 +323,7 @@ const Products = () => {
 
         {/* REVIEW SECTION */}
 
-        <ReviewComponent productId={product?._id}/>
+        <ReviewComponent productId={product?._id} />
       </div>
     </>
   );

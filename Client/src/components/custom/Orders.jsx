@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card } from "../ui/card";
 import {
   Select,
@@ -8,9 +8,81 @@ import {
   SelectValue,
 } from "../ui/select";
 import OrderProductTile from "./OrderProductTile";
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "../ui/pagination";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../ui/pagination";
+import useErrorLogout from "@/hooks/use-error-logout";
+import axios from "axios";
+import { toast } from "sonner";
 
 const Orders = () => {
+  const [orders, setOrders] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const { handleErrorLogout } = useErrorLogout();
+
+  useEffect(() => {
+    const fetchOrders = () => {
+      try {
+        axios
+          .get(
+            import.meta.env.VITE_API_URL +
+              `/get-all-orders?page=${currentPage}&limit=10`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          )
+          .then((res) => {
+            const { data, totalPages, currentPage } = res.data;
+            setOrders(data);
+            setTotalPages(totalPages);
+            setCurrentPage(currentPage);
+          });
+      } catch (error) {
+        return handleErrorLogout(error, error.response.data.message);
+      }
+    };
+
+    fetchOrders();
+  }, [currentPage]);
+
+  const updateOrderStatus = async (status, paymentId) => {
+    try {
+      const res = await axios.put(
+        import.meta.env.VITE_API_URL + `/update-order-status/${paymentId}`,
+        { status },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      const data = await res.data;
+      toast.success(
+        <span className="text-green-600 font-semibold">
+          Status Updated Succufully
+        </span>,
+        {
+          duration: 4000, // 4 seconds
+          position: "top-center",
+        }
+      );
+    } catch (error) {
+      return handleErrorLogout(error);
+    }
+  };
+
+  // console.log(orders);
+
   return (
     <div className="mx-auto px-4 sm:px-8 -z-10 w-full">
       <h1 className="text-3xl font-bold mb-2 ml-3">Orders</h1>
@@ -20,57 +92,81 @@ const Orders = () => {
             <h2 className="text-xl font-medium">Order Summary</h2>
 
             <div className="grid space-y-1 gap-2 ">
-              <Card className="space-y-2 p-3 shadow-md">
-                <div className="grid sm:grid-cols-3 gap-2">
-                  <OrderProductTile />
-                  <OrderProductTile />
-                  <OrderProductTile />
-                </div>
-                <hr />
+              {orders.length === 0 ? (
+                <h2 className="text-primary text-3xl">
+                  Nothing To Show Please Add Some Product
+                </h2>
+              ) : (
+                orders.map((item) => (
+                  <Card key={item._id} className="space-y-2 p-3 shadow-md">
+                    <div className="grid sm:grid-cols-3 gap-2">
+                      {item?.products?.map((product) => (
+                        <OrderProductTile key={product._id} {...product} />
+                      ))}
+                    </div>
+                    <hr />
 
-                <div>
-                  <p className="flex justify-between sm:justify-start gap-2 items-center px-3">
-                    <span className="font-bold">Total : </span>
-                    <span className="text-sm text-[#a4a4a4]">₹560</span>
-                  </p>
-                  <p className="flex justify-between sm:justify-start gap-2 items-center px-3">
-                    <span className="font-bold">Address : </span>
-                    <span className="text-sm text-[#a4a4a4]">
-                      Lorem ipsum dolor sit amet consectetur adipisicing.
-                    </span>
-                  </p>
-                  <p className="flex justify-between sm:justify-start gap-2 items-center px-3">
-                    <span className="font-bold">Name : </span>
-                    <span className="text-sm text-[#a4a4a4]">
-                      Chirag Zanpadiya
-                    </span>
-                  </p>
-                  <p className="flex justify-between sm:justify-start gap-2 items-center px-3">
-                    <span className="font-bold">Email : </span>
-                    <span className="text-sm text-[#a4a4a4]">
-                      chirag123@gmail.com
-                    </span>
-                  </p>
-                  <p className="flex justify-between sm:justify-start gap-2 items-center px-3">
-                    <span className="font-bold">Payment ID : </span>
-                    <span className="text-sm text-[#a4a4a4]">
-                      chirag123@gmail.com
-                    </span>
-                  </p>
-                </div>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pending" />
-                  </SelectTrigger>
-                  <SelectContent className="capitalize">
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="packed">Packed</SelectItem>
-                    <SelectItem value="in transit">In Transit</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="failed">Failed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </Card>
+                    <div>
+                      <p className="flex justify-between sm:justify-start gap-2 items-center px-3">
+                        <span className="font-bold">Total : </span>
+                        <span className="text-sm text-[#a4a4a4]">
+                          ₹{item?.amount}
+                        </span>
+                      </p>
+                      <p className="flex justify-between sm:justify-start gap-2 items-center px-3">
+                        <span className="font-bold">Address : </span>
+                        <span className="text-sm text-[#a4a4a4]">
+                          {item?.address}
+                        </span>
+                      </p>
+                      <p className="flex justify-between sm:justify-start gap-2 items-center px-3">
+                        <span className="font-bold">Name : </span>
+                        <span className="text-sm text-[#a4a4a4]">
+                          {item?.userId?.name}
+                        </span>
+                      </p>
+                      <p className="flex justify-between sm:justify-start gap-2 items-center px-3">
+                        <span className="font-bold">Email : </span>
+                        <span className="text-sm text-[#a4a4a4]">
+                          {item?.userId?.email}
+                        </span>
+                      </p>
+                      <p className="flex justify-between sm:justify-start gap-2 items-center px-3">
+                        <span className="font-bold">Payment ID : </span>
+                        <span className="text-sm text-[#a4a4a4]">
+                          {item?.razorpayPaymentId}
+                        </span>
+                      </p>
+                    </div>
+                    <Select
+                      onValueChange={(value) => {
+                        toast.warning(
+                          <span className="text-red-600 font-semibold">
+                            Do You Really Want Change The Status
+                          </span>,
+                          {
+                            duration: 4000, // 4 seconds
+                            position: "top-center",
+                          }
+                        );
+
+                        updateOrderStatus(value, item.razorpayPaymentId);
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={item?.status} />
+                      </SelectTrigger>
+                      <SelectContent className="capitalize">
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="packed">Packed</SelectItem>
+                        <SelectItem value="in transit">In Transit</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="failed">Failed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </Card>
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -78,16 +174,34 @@ const Orders = () => {
         <Pagination>
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious href="#" />
+              <PaginationPrevious
+                href="#"
+                onClick={() => {
+                  setCurrentPage((currentPage) =>
+                    currentPage >= 2 ? currentPage - 1 : 1
+                  );
+                }}
+              />
             </PaginationItem>
             <PaginationItem>
-              <PaginationLink href="#">1</PaginationLink>
+              {Array.from({ length: totalPages }, (data, i) => (
+                <PaginationLink
+                  href="#"
+                  onClick={() => setCurrentPage(i + 1)}
+                  key={i}
+                >
+                  {i + 1}
+                </PaginationLink>
+              ))}
             </PaginationItem>
             <PaginationItem>
               <PaginationEllipsis />
             </PaginationItem>
             <PaginationItem>
-              <PaginationNext href="#" />
+              <PaginationNext
+                href="#"
+                onClick={() => setCurrentPage(currentPage + 1)}
+              />
             </PaginationItem>
           </PaginationContent>
         </Pagination>

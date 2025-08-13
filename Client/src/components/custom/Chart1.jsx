@@ -41,7 +41,12 @@ const chartConfig = {
   },
 };
 
-export function Chart1() {
+export function Chart1({ chartData = [] }) {
+  const chartConfig = {
+    keyboard: { label: "Keyboard", color: "#edcf5d" },
+    mouse: { label: "Mouse", color: "#a4a4a4" },
+    headset: { label: "Headset", color: "#f2f0ea" },
+  };
   return (
     <Card className="flex-1 rounded-xl bg-muted/50 md:min-h-min">
       <CardHeader>
@@ -70,9 +75,8 @@ export function Chart1() {
             Treading Up By 5.2% This Month <TrendingUp className="h-4 w-4" />
           </div>
           <div className="text-muted-foreground leading-none">
-            Showing Total Visitors For The Last 6 Month 
+            Showing Total Visitors For The Last 6 Month
           </div>
-
         </CardFooter>
       </CardContent>
     </Card>
