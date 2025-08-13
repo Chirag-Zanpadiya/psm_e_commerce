@@ -20,7 +20,7 @@ const CartProduct = ({
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { generatePayment } = useRazorpay();
+  const { generatePayment, verifyPayment } = useRazorpay();
   const { isAuthenticated } = useSelector((state) => state.auth);
 
   const handleBuyNow = async () => {
@@ -75,6 +75,11 @@ const CartProduct = ({
     }
 
     const order = await generatePayment(price * quantity);
+    await verifyPayment(
+      order,
+      [{ id: _id, quantity, color }],
+      "123 main street"
+    );
   };
   return (
     <div className="border w-fit rounded-2xl overflow-clip grid z-1 relative hover:shadow-md">
