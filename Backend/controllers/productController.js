@@ -1,7 +1,7 @@
 const Product = require("../models/Product.js");
 const cloudinary = require("../utils/cloudinary.js");
 const { ROLES } = require("../utils/constants.js");
-
+const fs = require("fs");
 const createProduct = async (req, res) => {
   if (req.role !== ROLES.admin) {
     return res.status(401).json({
@@ -24,6 +24,9 @@ const createProduct = async (req, res) => {
         url: result.secure_url,
         id: result.public_id,
       });
+
+      // Cloudinary pe upload hone ke baad local temp file delete karo
+      fs.unlinkSync(req.files[file].path);
     }
 
     const product = new Product({
@@ -47,6 +50,8 @@ const createProduct = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
 
 const updateProduct = async (req, res) => {
   if (req.role !== ROLES.admin) {

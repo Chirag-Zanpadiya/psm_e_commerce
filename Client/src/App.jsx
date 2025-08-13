@@ -62,7 +62,7 @@ function App() {
       ),
     },
     {
-      path: "/product",
+      path: "/product/:productName",
       element: (
         <>
           <RootLayOut children={<Products />} />
