@@ -51,10 +51,9 @@ const Products = () => {
   const [availabilityMessage, setAvailabilityMessage] = useState("");
   const [purchaseProduct, setPurchaseProduct] = useState(false);
   const [address, setAddress] = useState("");
-  // const { handleErrorLogout } = useErrorLogout();
+  const { handleErrorLogout } = useErrorLogout();
   const [product, setProduct] = useState({});
   const [productColor, setProductColor] = useState("");
-
   const [selectedImage, setSelectedImage] = useState(0);
 
   useEffect(() => {
@@ -65,9 +64,14 @@ const Products = () => {
             `/get-product-by-name/${productName?.split("-").join(" ")}`
         );
         const { data } = await res.data;
-        console.log(data);
+        // console.log(data);
         setProduct(data);
-      } catch (error) {}
+        // console.log("priting productid");
+        // aait setID(data?._id);
+        // console.log(product?._id);
+      } catch (error) {
+        return handleErrorLogout(error);
+      }
     };
 
     fetchProductByName();
@@ -188,6 +192,10 @@ const Products = () => {
 
     setPurchaseProduct(false);
   };
+  // console.log(id);
+  // const id = product?._id;
+  // console.log(id);
+  console.log(product?._id);
 
   return (
     <>
@@ -320,10 +328,9 @@ const Products = () => {
             </div>
           </div>
         </main>
-
         {/* REVIEW SECTION */}
-
-        <ReviewComponent productId={product?._id} />
+        {/* REVIEW SECTION */}
+        {product?._id && <ReviewComponent productId={product._id} />}
       </div>
     </>
   );

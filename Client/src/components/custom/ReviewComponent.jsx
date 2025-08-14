@@ -10,6 +10,7 @@ import useErrorLogout from "@/hooks/use-error-logout";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "sonner";
+import { Delete, Edit2 } from "lucide-react";
 
 const ReviewComponent = ({ productId }) => {
   const [reviewList, setReviewList] = useState([]);
@@ -24,11 +25,25 @@ const ReviewComponent = ({ productId }) => {
   });
   const [newReply, setNewReply] = useState({ review: "" });
   const [replyingTo, setReplyingTo] = useState(null);
-
   const { handleErrorLogout } = useErrorLogout();
-  const { user } = useSelector((state) => state.auth);
+  const user = useSelector((state) => state.auth);
+  console.log("Printing User in ReviewComponents");
+
+  console.log(user);
 
   useEffect(() => {
+    // if (!productId) {
+    //   return toast.error(
+    //     <span className="text-red-600 font-semibold">
+    //      ProductId Not Found
+    //     </span>,
+    //     {
+    //       description: "Please try again later.",
+    //       duration: 4000, // 4 seconds
+    //       position: "top-center",
+    //     }
+    //   );
+    // }
     const getReviews = async () => {
       try {
         const res = await axios.get(
@@ -36,7 +51,9 @@ const ReviewComponent = ({ productId }) => {
         );
         const { data } = await res.data;
         setReviewList(data);
-      } catch (error) {}
+      } catch (error) {
+        return handleErrorLogout(error);
+      }
     };
     getReviews();
   }, [productId]);
@@ -114,15 +131,15 @@ const ReviewComponent = ({ productId }) => {
   };
 
   const editReview = async (reviewId) => {
-    if (!confirm("Are you sure you want to edit this review?")) {
-      return;
-    }
+    console.log("Editing Reviews :: ");
+
+    console.log(editing?.review);
 
     try {
       const res = await axios.put(
         import.meta.env.VITE_API_URL + `/update-review/${reviewId}`,
         {
-          updatedReview: editing.review,
+          updateReview: editing?.review,
         },
         {
           headers: {
@@ -132,7 +149,7 @@ const ReviewComponent = ({ productId }) => {
       );
       const { data, message } = await res.data;
       setReviewList(
-        reviewList.map((review) => (review._id === reviewId ? data : review))
+        reviewList.map((review) => (review?._id === reviewId ? data : review))
       );
       toast.success(
         <span className="text-green-600 font-semibold">{message}</span>,
@@ -204,6 +221,7 @@ const ReviewComponent = ({ productId }) => {
       return handleErrorLogout(error, "Error while replying");
     }
   };
+  // console.log(user);
 
   return (
     <div className="my-10 sm:my-20 w-[93vw] lg:w-[70vw] mx-auto">
@@ -269,11 +287,11 @@ const ReviewComponent = ({ productId }) => {
             </div>
 
             {/* Review Content */}
-            {user?.id === review?.userId?._id &&
+            {user?._id === review?.userId?._id &&
             editing.status &&
             editing.reviewId === review?._id ? (
               <Input
-                value={editing.review}
+                value={editing?.review}
                 onChange={(e) =>
                   setEditing({
                     review: e.target.value,
@@ -283,7 +301,7 @@ const ReviewComponent = ({ productId }) => {
                 }
               />
             ) : (
-              <p className="text-gray-600 text-sm dark:text-customGray">
+              <p className="text-gray-100 text-sm dark:text-customGray">
                 {review?.review}
               </p>
             )}
@@ -301,7 +319,7 @@ const ReviewComponent = ({ productId }) => {
                       className="flex items-start space-x-4 border-b pb-3 last:border-none"
                     >
                       <img
-                        src="https://via.placeholder.com/32"
+                        src={reply?.userId?.name}
                         alt={reply?.userId?.name}
                         className="w-8 h-8 rounded-full border border-gray-300"
                       />
@@ -338,26 +356,25 @@ const ReviewComponent = ({ productId }) => {
 
             <div className="flex gap-5 justify-start items-center mt-4">
               <button
-                className="text-sm text-customYellow hover:underline"
+                className="text-sm text-[#edcf5d] hover:underline"
                 onClick={() =>
                   setReplyingTo(replyingTo === review._id ? null : review._id)
                 }
               >
                 {replyingTo === review?._id ? "Cancel" : "Reply"}
               </button>
-
-              {user?.id === review?.userId?._id && (
+              {String(user?._id) === String(review?.userId?._id) && (
                 <>
-                  {editing.status ? (
+                  {editing.status && editing.reviewId === review?._id ? (
                     <span
-                      onClick={() => editReview(review._id)}
-                      className="text-sm text-customYellow cursor-pointer hover:underline"
+                      onClick={() => editReview(review?._id)}
+                      className="text-sm text-[#edcf5d] cursor-pointer hover:underline"
                     >
                       Save
                     </span>
                   ) : (
                     <span
-                      className="flex items-center gap-2 border-b bg-transparent hover:border-customYellow cursor-pointer text-customYellow"
+                      className="flex items-center gap-2 border-b bg-transparent hover:border-[#edcf5d] cursor-pointer text-[#edcf5d]"
                       onClick={() =>
                         setEditing({
                           status: true,
@@ -372,7 +389,7 @@ const ReviewComponent = ({ productId }) => {
                   )}
 
                   <span
-                    className="flex items-center gap-2 border-b bg-transparent hover:border-customYellow cursor-pointer text-customYellow"
+                    className="flex items-center gap-2 border-b bg-transparent hover:border-[#edcf5d] cursor-pointer text-[#edcf5d]"
                     onClick={() => deleteReview(review._id)}
                   >
                     <Delete size={20} color={Colors.customYellow} />
