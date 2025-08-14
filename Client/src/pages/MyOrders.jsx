@@ -20,9 +20,9 @@ const MyOrders = () => {
         );
 
         const { data } = res.data;
-        console.log("MyOrder.jsx ::");
+        // console.log("MyOrder.jsx ::");
 
-        console.log(res.data);
+        // console.log(res.data);
 
         setOrders(data);
       } catch (error) {

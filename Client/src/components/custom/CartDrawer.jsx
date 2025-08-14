@@ -19,9 +19,9 @@ const CartDrawer = () => {
     (state) => state.cart
   );
 
-  console.log("totalQuantity:", totalQuantity);
-  console.log("totalPrice:", totalPrice);
-  console.log("cartItems:", cartItems);
+  // console.log("totalQuantity:", totalQuantity);
+  // console.log("totalPrice:", totalPrice);
+  // console.log("cartItems:", cartItems);
 
   return (
     <Drawer>

@@ -14,8 +14,8 @@ const AdminLogin = () => {
 
     const username = e.target.username.value.trim();
     const password = e.target.password.value.trim();
-    console.log(username);
-    console.log(password);
+    // console.log(username);
+    // console.log(password);
 
     if (!username || !password) {
       toast.warning(
@@ -37,9 +37,9 @@ const AdminLogin = () => {
           }
         );
 
-        console.log(res);
+        // console.log(res);
         const data = await res.data;
-        console.log(data);
+        // console.log(data);
 
         dispatch(setUserLogin(data));
 
@@ -53,7 +53,7 @@ const AdminLogin = () => {
         navigate("/admin/dashboard");
       } catch (error) {
 
-        console.log('error :>> ', error);
+        // console.log('error :>> ', error);
         return toast.error(
           <span className="text-red-600 font-semibold">
             {error.response.data.message}

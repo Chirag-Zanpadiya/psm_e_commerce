@@ -50,7 +50,7 @@ const Analytics = () => {
 
     getMetrics();
   }, []);
-  console.log(metrics);
+  // console.log(metrics);
 
   return (
     <div className="w-screen md:w-[90vw] xl:w-[80vw] flex justify-center items-center">

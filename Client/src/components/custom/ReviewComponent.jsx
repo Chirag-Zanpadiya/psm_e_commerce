@@ -27,9 +27,9 @@ const ReviewComponent = ({ productId }) => {
   const [replyingTo, setReplyingTo] = useState(null);
   const { handleErrorLogout } = useErrorLogout();
   const user = useSelector((state) => state.auth);
-  console.log("Printing User in ReviewComponents");
+  // console.log("Printing User in ReviewComponents");
 
-  console.log(user);
+  // console.log(user);
 
   useEffect(() => {
     // if (!productId) {
@@ -131,9 +131,9 @@ const ReviewComponent = ({ productId }) => {
   };
 
   const editReview = async (reviewId) => {
-    console.log("Editing Reviews :: ");
+    // console.log("Editing Reviews :: ");
 
-    console.log(editing?.review);
+    // console.log(editing?.review);
 
     try {
       const res = await axios.put(

@@ -51,8 +51,6 @@ const createProduct = async (req, res) => {
   }
 };
 
-
-
 const updateProduct = async (req, res) => {
   if (req.role !== ROLES.admin) {
     return res.status(401).json({
@@ -184,9 +182,13 @@ const getProducts = async (req, res) => {
 
 // jab click karege toh usko main pages pe jayega
 const getProductByName = async (req, res) => {
-  const { name } = req.params;
+  let { name } = req.params;
   try {
-    const product = await Product.findOne({ name: name });
+    const product = await Product.findOne({
+      name: {
+        $regex: new RegExp(name, "i"),
+      },
+    });
     if (!product) {
       return res.status(404).json({
         success: false,

@@ -59,9 +59,12 @@ const Products = () => {
   useEffect(() => {
     const fetchProductByName = async () => {
       try {
+        // const encodedName = encodeURIComponent(
+        //   productName?.split("-").join(" ")
+        // );
         const res = await axios.get(
           import.meta.env.VITE_API_URL +
-            `/get-product-by-name/${productName?.split("-").join(" ")}`
+            `/get-product-by-name/${(productName?.split("-").join(" "))}`
         );
         const { data } = await res.data;
         // console.log(data);
@@ -195,7 +198,7 @@ const Products = () => {
   // console.log(id);
   // const id = product?._id;
   // console.log(id);
-  console.log(product?._id);
+  // console.log(product?._id);
 
   return (
     <>
