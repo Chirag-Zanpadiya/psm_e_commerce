@@ -118,7 +118,7 @@ const getProducts = async (req, res) => {
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 9;
 
-    let query = {};
+    let query = { blacklisted: false };
 
     if (category) {
       query.category = category.charAt(0).toUpperCase() + category.slice(1);
@@ -146,6 +146,7 @@ const getProducts = async (req, res) => {
     const totalPages = Math.ceil(totalProducts / limit);
     const products = await Product.find(query)
       .select("name price images rating description blacklisted")
+      .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
 
